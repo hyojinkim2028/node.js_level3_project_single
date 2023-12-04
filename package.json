@@ -2,6 +2,10 @@
   "name": "level_3_single_project",
   "version": "1.0.0",
   "main": "app.js",
+  "scripts": {
+    "start": "node src.app.js",
+    "dev": "nodemon src/app.js"
+  },
   "repository": "https://github.com/hyojinkim2028/node.js_level3_project_single.git",
   "author": "rizzy <12hyojinkim14@gmail.com>",
   "license": "MIT",

@@ -1,0 +1,64 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  userId   Int @id @default(autoincrement()) @map("userId")
+  email String  @unique @map("email")
+  name String @map("name")
+  password String @map("password")
+
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+
+  UserInfos UserInfos? // User 테이블과 UserInfos 테이블이 1:1 관계 (UserInfos 없을수도 있음)
+  //RefreshTokens RefreshTokens? // User 테이블과 RefreshTokens 테이블이 1:1 관계 (RefreshTokens 없을수도 있음)
+  Goods Goods[] // Users 테이블과 Goods 테이블이 1:N 관계 
+
+  @@map("Users")
+}
+
+model UserInfos {
+  userInfoId Int @id @default(autoincrement()) @map("userInfoId")
+  UserId Int @unique @map("UserId")
+  email String  @unique @map("email")
+  name String @map("name")
+
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+
+  // User 테이블에 1:1 관계
+  User Users @relation(fields: [UserId], references: [userId], onDelete:Cascade)
+
+  @@map("UserInfos")
+}
+
+enum Status {
+  FOR_SALE
+  SOLD_OUT
+}
+
+model Goods {
+  goodsId Int @id @default(autoincrement()) @map("goodsId")
+  UserId Int @map("UserId")
+  
+  goods String @map("goods")
+  content String @db.Text @map("content")
+  status Status @default(FOR_SALE) @map("status")
+
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+
+  User Users @relation(fields: [UserId], references: [userId], onDelete: Cascade)
+
+  @@map("Goods")
+}
+

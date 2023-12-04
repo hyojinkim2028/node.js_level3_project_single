@@ -1,7 +1,7 @@
-const express = require('express');
-const User = require('../models/user');
-const Goods = require('../models/goods');
-const authMiddleware = require('../middlewares/auth-middleware');
+import express from 'express';
+
+import authMiddleware from '../middlewares/auth-middleware.js';
+
 const router = express.Router();
 
 // 상품 전체조회
@@ -197,4 +197,4 @@ router.delete('/:id', authMiddleware, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

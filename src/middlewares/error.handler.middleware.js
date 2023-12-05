@@ -1,8 +1,8 @@
 export default (error, req, res, next) => {
     console.log(error);
-  
-    return res
-      .status(500)
-      .json({ errorMessage: '서버에서 에러가 발생했습니다.' });
+
+    error.statusCode = error.statusCode || 500;
+    error.message = error.message || '서버오류';
+    return res.status(error.statusCode).send({ errorMessage: error.message });
   };
   

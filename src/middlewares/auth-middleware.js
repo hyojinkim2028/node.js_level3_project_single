@@ -2,35 +2,58 @@ import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { prisma } from '../utils/prisma/index.js';
-
-export default async (req, res, next) => {
+async function isLoggedIn(req, res, next) {
   try {
     const { accessToken } = req.cookies;
-    console.log(accessToken);
-    const decodedToken = jwt.verify(
-      accessToken,
-      process.env.ACCESS_TOKEN_SECRET
-    );
+    if (accessToken) {
+      const decodedToken = jwt.verify(
+        accessToken,
+        process.env.ACCESS_TOKEN_SECRET
+      );
+      const { id } = decodedToken;
+      req.user = id;
+      next();
+    } else {
+      res.status(403).send('로그인 정보가 없습니다.');
+    }
+  } catch (err) {
+    if (err.name === 'JsonWebTokenError') {
+      res.status(403).send('유효하지 않은 토큰 정보입니다.');
+    } else next(err);
+  }
+}
 
-    const { id } = decodedToken;
-    const user = await prisma.users.findFirst({
-      where: { userId: +id },
-    });
+async function isNotLoggedIn(req, res, next) {
+  try {
+    const { accessToken } = req.cookies;
 
-    if (!user) {
-      res.clearCookie('accessToken');
-      throw new Error('토큰 사용자가 존재하지 않습니다.');
+    if (!accessToken) {
+      next();
     }
 
-    res.locals.user = user; // 해당 id의 유저정보 res.locals에 담아 어디서든 호출 가능
-    // console.log(res.locals.user);
-    req.user = user;
-    next();
+    if (accessToken) {
+      const decodedToken = jwt.verify(
+        accessToken,
+        process.env.ACCESS_TOKEN_SECRET
+      );
+      if (decodedToken) {
+        console.log(decodedToken);
+        res.status(403).send('이미 로그인되어 있습니다.');
+      } else next();
+    }
+
+    //JsonWebTokenError: invalid token
   } catch (err) {
-    console.error(err);
-    res.status(401).send({
-      errorMessage: `로그인 후 이용 가능한 기능입니다.`,
-    });
+    // 유효시간이 초과된 경우
+    if (err.name === 'TokenExpiredError') {
+      next();
+      // 토큰 정보 불일치
+    } else if (err.name === 'JsonWebTokenError') {
+      next();
+    } else {
+      next(err);
+    }
   }
-};
+}
+
+export { isLoggedIn, isNotLoggedIn };

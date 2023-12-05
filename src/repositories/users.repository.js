@@ -31,7 +31,7 @@ export class UsersRepository {
         email: true,
         name: true,
       },
-    });
+    }); 
     return user;
   };
 }

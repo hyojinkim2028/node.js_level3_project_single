@@ -12,15 +12,14 @@ export class GoodsController {
         .status(200)
         .json({ Message: '전체 상품 조회 완료! ', data: goodsList });
     } catch (error) {
-      console.error(error);
-      return res.status(500).send({ errorMessage: '서버오류' });
+      next(error);
     }
   };
 
   // 상품 생성
   createGoods = async (req, res, next) => {
     try {
-      const { userId } = req.user;
+      const userId = req.user;
       const { goods, content, status } = req.body;
 
       // 정상 입력된 경우 상품 생성됨
@@ -31,10 +30,9 @@ export class GoodsController {
         status
       );
 
-      res.status(201).json({ Message: '상품 등록 완료! ', data: createGoods });
+      res.status(201).json({ Message: '상품 등록 완료!', data: createGoods });
     } catch (error) {
-      console.error(error);
-      return res.status(500).send({ errorMessage: '서버오류' });
+      next(error);
     }
   };
 
@@ -49,15 +47,14 @@ export class GoodsController {
         .status(200)
         .json({ Message: `${goodsId}번 상품 조회 완료`, data: goods });
     } catch (error) {
-      console.error(error);
-      return res.status(500).send({ errorMessage: '서버오류' });
+      next(error);
     }
   };
 
   // 상품 수정
   updateGoods = async (req, res, next) => {
     try {
-      const { userId } = req.user;
+      const userId = req.user;
       const { goodsId } = req.params;
 
       // 수정할 내용
@@ -74,15 +71,14 @@ export class GoodsController {
         .status(200)
         .json({ Message: `${goodsId}번 상품 수정 완료`, data: updateGoods });
     } catch (error) {
-      console.error(error);
-      return res.status(500).send({ errorMessage: '서버오류' });
+      next(error);
     }
   };
 
   // 상품 삭제
   deleteGoods = async (req, res, next) => {
     try {
-      const { userId } = req.user;
+      const userId = req.user;
       const { goodsId } = req.params;
 
       // 삭제할 내용
@@ -92,8 +88,7 @@ export class GoodsController {
         .status(200)
         .json({ Message: `${goodsId}번 상품 삭제 완료`, data: deleteGoods });
     } catch (error) {
-      console.error(error);
-      return res.status(500).send({ errorMessage: '서버오류' });
+      next(error);
     }
   };
 }

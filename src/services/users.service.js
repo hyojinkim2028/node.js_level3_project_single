@@ -13,23 +13,28 @@ export class UsersService {
 
     // 이메일 형식이 검증식을 통과 못할때 오류 + 조기리턴
     if (!regex.test(email)) {
-      return res.status(400).send({
-        errorMessage: '이메일 형식이 올바르지 않습니다.',
-      });
+      const err = new Error('이메일 형식이 올바르지 않습니다.');
+      err.statusCode = 400;
+      throw err;
     }
 
     // email 중복여부 확인
     const isExistUser = await this.usersRepository.findByUser(email);
 
     // 중복된 이메일이면 오류 + 조기리턴
-    if (isExistUser) throw new Error('이메일이 이미 사용중입니다.');
+    if (isExistUser) {
+      const err = new Error('이메일이 이미 사용중입니다.');
+      err.statusCode = 400;
+      throw err;
+    }
 
     // 비밀번호가 확인비밀번호가 다르거나 비번 길이가 6자 미만일때 오류 + 조기리턴
     if (password !== confirmPassword || password.length < 6) {
-      return res.status(400).send({
-        errorMessage:
-          '비밀번호 확인과 일치한 6자리 이상의 비밀번호를 입력해주세요.',
-      });
+      const err = new Error(
+        '비밀번호 확인과 일치한 6자리 이상의 비밀번호를 입력해주세요.'
+      );
+      err.statusCode = 400;
+      throw err;
     }
 
     // 오류가 없을 경우 비밀번호 hash 처리 하여 유저 생성
@@ -53,11 +58,18 @@ export class UsersService {
     const user = await this.usersRepository.findByUser(email);
 
     // 해당하는 유저가 없는 경우
-    if (!user) throw new Error('존재하지 않는 이메일입니다. ');
+    if (!user) {
+      const err = new Error('존재하지 않는 이메일입니다.');
+      err.statusCode = 400;
+      throw err;
+    }
 
     // 입력받은 사용자의 비밀번호와 데이터베이스에 저장된 비밀번호를 비교
-    if (!(await bcrypt.compare(password, user.password)))
-      throw new Error('비밀번호가 일치하지 않습니다.');
+    if (!(await bcrypt.compare(password, user.password))) {
+      const err = new Error('비밀번호가 일치하지 않습니다.');
+      err.statusCode = 400;
+      throw err;
+    }
 
     const accessToken = jwt.sign(
       { id: user.userId },

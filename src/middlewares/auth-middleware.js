@@ -7,6 +7,7 @@ import { prisma } from '../utils/prisma/index.js';
 export default async (req, res, next) => {
   try {
     const { accessToken } = req.cookies;
+    console.log(accessToken);
     const decodedToken = jwt.verify(
       accessToken,
       process.env.ACCESS_TOKEN_SECRET
